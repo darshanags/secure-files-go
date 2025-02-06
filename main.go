@@ -1,15 +1,22 @@
 package main
 
-import (
-	"github.com/darshanags/secure-files-go/internal/kdf"
-)
-
 func main() {
 
-	salt, key := kdf.Kdf("testpass", nil)
+	// progArgs := os.Args[1:]
 
-	//fmt.Println("Salt", salt)
-	//fmt.Println("Key", key)
+	// salt, key := kdf.Kdf("testpass", nil)
 
-	//encryptfile.EncryptFile("test.txt", "test.txt.enc", key, salt)
+	// err := encryptfile.EncryptFile("test.txt", "test.txt.enc", key, salt)
+
+	// if err != nil {
+
+	// 	log.Fatalln(err)
+	// }
+
+	// err2 := decryptfile.DecryptFile("test.txt.enc", "test1.txt", "testpass")
+
+	// if err2 != nil {
+
+	// 	log.Fatalln(err2)
+	// }
 }
