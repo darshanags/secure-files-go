@@ -1,22 +1,40 @@
 package main
 
+import (
+	"log"
+	"os"
+
+	cliparser "github.com/darshanags/secure-files-go/internal/cliParser"
+	decryptfile "github.com/darshanags/secure-files-go/internal/dencryptFile"
+	encryptfile "github.com/darshanags/secure-files-go/internal/encryptFile"
+	"github.com/darshanags/secure-files-go/internal/kdf"
+)
+
 func main() {
 
-	// progArgs := os.Args[1:]
+	progArgs := os.Args[1:]
 
-	// salt, key := kdf.Kdf("testpass", nil)
+	actions, err := cliparser.CliParser(progArgs)
 
-	// err := encryptfile.EncryptFile("test.txt", "test.txt.enc", key, salt)
+	if err != nil {
+		log.Fatalln(err)
+	}
 
-	// if err != nil {
+	switch actions.Directive {
+	case "enc":
+		salt, key := kdf.Kdf(actions.Password, nil)
 
-	// 	log.Fatalln(err)
-	// }
+		err := encryptfile.EncryptFile(actions.InputPath, actions.OutputPath, key, salt)
 
-	// err2 := decryptfile.DecryptFile("test.txt.enc", "test1.txt", "testpass")
+		if err != nil {
+			log.Fatalln(err)
+		}
+	case "dec":
+		err := decryptfile.DecryptFile(actions.InputPath, actions.OutputPath, actions.Password)
 
-	// if err2 != nil {
+		if err != nil {
+			log.Fatalln(err)
+		}
+	}
 
-	// 	log.Fatalln(err2)
-	// }
 }
