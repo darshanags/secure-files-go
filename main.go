@@ -5,7 +5,7 @@ import (
 	"os"
 
 	cliparser "github.com/darshanags/secure-files-go/internal/cliParser"
-	decryptfile "github.com/darshanags/secure-files-go/internal/dencryptFile"
+	decryptfile "github.com/darshanags/secure-files-go/internal/decryptFile"
 	encryptfile "github.com/darshanags/secure-files-go/internal/encryptFile"
 	"github.com/darshanags/secure-files-go/internal/kdf"
 )
