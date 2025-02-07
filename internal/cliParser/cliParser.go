@@ -2,23 +2,38 @@ package cliparser
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
+
+	"golang.org/x/term"
 )
 
 type ActionInfo struct {
 	Directive, InputPath, OutputPath, Password string
 }
 
+func getPasswordFromUser() (pass string, errr error) {
+	fmt.Println("Enter Password: ")
+	enteredPassword, err := term.ReadPassword(syscall.Stdin)
+	if err != nil {
+		return "", err
+	}
+	password := strings.Trim(string(enteredPassword), " ")
+
+	return password, nil
+}
+
 func CliParser(args []string) (ActionInfo, error) {
 
-	const usage string = "Usage: secure-files <enc|dec> <input_file> <password>"
+	const usage string = "Usage: secure-files-go <enc|dec> <input_file>"
 	var directive string
 	var outputFile string
 	action := ActionInfo{}
 
-	if len(args) < 3 {
+	if len(args) < 2 {
 		return action, errors.New("insufficient arguments. " + usage)
 	}
 
@@ -54,10 +69,16 @@ func CliParser(args []string) (ActionInfo, error) {
 		outputFile = strings.TrimSuffix(fullInputPath, ".enc")
 	}
 
+	pw, err := getPasswordFromUser()
+
+	if err != nil {
+		return action, err
+	}
+
 	action.Directive = directive
 	action.InputPath = fullInputPath
 	action.OutputPath = outputFile
-	action.Password = args[2]
+	action.Password = pw
 
 	return action, nil
 }

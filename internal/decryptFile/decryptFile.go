@@ -61,7 +61,7 @@ func DecryptFile(inputPath string, outputPath string, password string) error {
 
 	decryptedDataEncKey, err := dataEncKeyCipher.Open(nil, nonce, encryptedDataEncKey, nil)
 	if err != nil {
-		return fmt.Errorf("could not decrypt the data encryption key: %w", err)
+		return fmt.Errorf("could not decrypt the data encryption key, your password could be incorrect: %w", err)
 	}
 
 	outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0755)
@@ -77,6 +77,7 @@ func DecryptFile(inputPath string, outputPath string, password string) error {
 
 	chunk := make([]byte, chunkSize+dataDecryptionCipher.Overhead())
 	chunkIndex := uint64(0)
+	totalBytesRead := 0
 
 	for {
 		bytesRead, err := encryptedFile.Read(chunk)
@@ -98,7 +99,10 @@ func DecryptFile(inputPath string, outputPath string, password string) error {
 
 		chunkIndex++
 		binary.LittleEndian.PutUint64(nonce[4:], chunkIndex)
+		totalBytesRead += bytesRead
 	}
+
+	fmt.Printf("File decrypted successfully! Total bytes processed: %d\n", totalBytesRead)
 
 	return nil
 

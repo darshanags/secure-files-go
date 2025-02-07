@@ -53,6 +53,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 
 	chunk := make([]byte, chunkSize)
 	chunkIndex := uint64(0)
+	totalBytesRead := 0
 
 	for {
 		bytesRead, err := inputFile.Read(chunk)
@@ -71,7 +72,10 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 
 		chunkIndex++
 		binary.LittleEndian.PutUint64(nonce[4:], chunkIndex)
+		totalBytesRead += bytesRead
 	}
+
+	fmt.Printf("File encrypted successfully! Total bytes processed: %d\n", totalBytesRead)
 
 	return nil
 }
