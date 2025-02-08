@@ -4,10 +4,10 @@ import (
 	"log"
 	"os"
 
-	cliparser "github.com/darshanags/secure-files-go/internal/cliParser"
-	decryptfile "github.com/darshanags/secure-files-go/internal/decryptFile"
-	encryptfile "github.com/darshanags/secure-files-go/internal/encryptFile"
-	"github.com/darshanags/secure-files-go/internal/kdf"
+	cliparser "github.com/darshanags/secure-files-go/pkg/cliParser"
+	decryptfile "github.com/darshanags/secure-files-go/pkg/decryptFile"
+	encryptfile "github.com/darshanags/secure-files-go/pkg/encryptFile"
+	"github.com/darshanags/secure-files-go/pkg/kdf"
 )
 
 func main() {

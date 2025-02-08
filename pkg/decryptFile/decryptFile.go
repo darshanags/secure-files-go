@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/darshanags/secure-files-go/internal/kdf"
+	"github.com/darshanags/secure-files-go/pkg/kdf"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 

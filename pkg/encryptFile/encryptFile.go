@@ -7,7 +7,7 @@ import (
 	"os"
 	"slices"
 
-	genrandkey "github.com/darshanags/secure-files-go/internal/genRandKey"
+	genrandkey "github.com/darshanags/secure-files-go/pkg/genRandKey"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
