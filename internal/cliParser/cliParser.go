@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
-	"syscall"
 
 	"golang.org/x/term"
 )
@@ -17,7 +16,7 @@ type ActionInfo struct {
 
 func getPasswordFromUser() (pass string, errr error) {
 	fmt.Println("Enter Password: ")
-	enteredPassword, err := term.ReadPassword(syscall.Stdin)
+	enteredPassword, err := term.ReadPassword(int(os.Stdin.Fd()))
 	if err != nil {
 		return "", err
 	}
