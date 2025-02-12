@@ -25,6 +25,19 @@ func getPasswordFromUser() (pass string, errr error) {
 	return password, nil
 }
 
+func getOutputPath(dirc string, fp string) string {
+	var oF string
+
+	switch dirc {
+	case "enc":
+		oF = fp + ".enc"
+	case "dec":
+		oF = strings.TrimSuffix(fp, ".enc")
+	}
+
+	return oF
+}
+
 func CliParser(args []string) (ActionInfo, error) {
 
 	const usage string = "Usage: secure-files-go <enc|dec> <input_file>"
@@ -61,12 +74,7 @@ func CliParser(args []string) (ActionInfo, error) {
 		return action, errors.New("the input file extension is invalid")
 	}
 
-	switch args[0] {
-	case "enc":
-		outputFile = fullInputPath + ".enc"
-	case "dec":
-		outputFile = strings.TrimSuffix(fullInputPath, ".enc")
-	}
+	outputFile = getOutputPath(directive, fullInputPath)
 
 	pw, err := getPasswordFromUser()
 
