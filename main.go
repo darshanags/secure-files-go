@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 
@@ -24,16 +25,20 @@ func main() {
 	case "enc":
 		salt, key := kdf.Kdf(actions.Password, nil)
 
-		err := encryptfile.EncryptFile(actions.InputPath, actions.OutputPath, key, salt)
+		message, err := encryptfile.EncryptFile(actions.InputPath, actions.OutputPath, key, salt)
 
 		if err != nil {
 			log.Fatalln(err)
+		} else {
+			fmt.Println(message)
 		}
 	case "dec":
-		err := decryptfile.DecryptFile(actions.InputPath, actions.OutputPath, actions.Password)
+		message, err := decryptfile.DecryptFile(actions.InputPath, actions.OutputPath, actions.Password)
 
 		if err != nil {
 			log.Fatalln(err)
+		} else {
+			fmt.Println(message)
 		}
 	}
 

@@ -11,7 +11,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []byte) error {
+func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []byte) (string, error) {
 
 	const (
 		chunkSize = 4096
@@ -19,14 +19,17 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 	)
 
 	inputFile, err := os.Open(inputPath)
+
+	message := ""
+
 	if err != nil {
-		return fmt.Errorf("failed to open input file: %w", err)
+		return message, fmt.Errorf("failed to open input file: %w", err)
 	}
 	defer inputFile.Close()
 
 	outFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0755)
 	if err != nil {
-		return fmt.Errorf("failed to create output file: %w", err)
+		return message, fmt.Errorf("failed to create output file: %w", err)
 	}
 	defer outFile.Close()
 
@@ -35,7 +38,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 
 	dataEncKeyCipher, err := chacha20poly1305.New(derivedKey)
 	if err != nil {
-		return fmt.Errorf("failed to create cipher: %w", err)
+		return message, fmt.Errorf("failed to create cipher: %w", err)
 	}
 
 	encDataEncKey := dataEncKeyCipher.Seal(nil, nonce, dataEncKey, nil)
@@ -58,7 +61,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 	for {
 		bytesRead, err := inputFile.Read(chunk)
 		if err != nil && err != io.EOF {
-			return fmt.Errorf("failed to read chunk: %w", err)
+			return message, fmt.Errorf("failed to read chunk: %w", err)
 		}
 		if bytesRead == 0 {
 			break
@@ -67,7 +70,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 		encryptedChunk := fileDataCipher.Seal(nil, nonce, chunk[:bytesRead], nil)
 
 		if _, err := outFile.Write(encryptedChunk); err != nil {
-			return fmt.Errorf("failed to write encrypted chunk: %w", err)
+			return message, fmt.Errorf("failed to write encrypted chunk: %w", err)
 		}
 
 		chunkIndex++
@@ -75,7 +78,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 		totalBytesRead += bytesRead
 	}
 
-	fmt.Printf("File encrypted successfully! Total bytes processed: %d\n", totalBytesRead)
+	message = fmt.Sprintf("File encrypted successfully! Total bytes processed: %d", totalBytesRead)
 
-	return nil
+	return message, nil
 }
