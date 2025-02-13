@@ -25,7 +25,7 @@ func getPasswordFromUser() (pass string, errr error) {
 	return password, nil
 }
 
-func getOutputPath(dirc string, fp string) string {
+func GetOutputPath(dirc string, fp string) string {
 	var oF string
 
 	switch dirc {
@@ -74,7 +74,7 @@ func CliParser(args []string) (ActionInfo, error) {
 		return action, errors.New("the input file extension is invalid")
 	}
 
-	outputFile = getOutputPath(directive, fullInputPath)
+	outputFile = GetOutputPath(directive, fullInputPath)
 
 	pw, err := getPasswordFromUser()
 
