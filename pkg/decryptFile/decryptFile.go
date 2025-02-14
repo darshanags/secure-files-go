@@ -6,20 +6,13 @@ import (
 	"io"
 	"os"
 
+	"github.com/darshanags/secure-files-go/pkg/appparser"
+	"github.com/darshanags/secure-files-go/pkg/config"
 	"github.com/darshanags/secure-files-go/pkg/kdf"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
 func DecryptFile(inputPath string, outputPath string, password string) (string, error) {
-
-	const (
-		chunkSize                     = 4096
-		nonceSize                     = chacha20poly1305.NonceSize
-		saltSize                int64 = 16
-		encryptedDataEncKeySize int64 = 32
-		authTagSize             int64 = 16
-		minFileSize             int64 = nonceSize + saltSize + encryptedDataEncKeySize + authTagSize + authTagSize
-	)
 
 	message := ""
 
@@ -35,21 +28,30 @@ func DecryptFile(inputPath string, outputPath string, password string) (string, 
 	}
 	fileSize := fileStat.Size()
 
-	if fileSize < minFileSize {
-		return message, fmt.Errorf("invalid file format")
+	if fileSize < config.MinFileSize {
+		return message, fmt.Errorf("invalid file format: minimum file size mismatch")
 	}
 
-	nonce := make([]byte, nonceSize)
+	fileSignature, err := appparser.GetFileSignature(encryptedFile, "")
+	if err != nil {
+		return message, err
+	}
+
+	if _, err := appparser.IsValidFileSignature(fileSignature); err != nil {
+		return message, err
+	}
+
+	nonce := make([]byte, config.NonceSize)
 	if _, err := encryptedFile.Read(nonce); err != nil {
 		return message, fmt.Errorf("could not read the nonce: %w", err)
 	}
 
-	salt := make([]byte, saltSize)
+	salt := make([]byte, config.SaltSize)
 	if _, err := encryptedFile.Read(salt); err != nil {
 		return message, fmt.Errorf("could not read the salt: %w", err)
 	}
 
-	encryptedDataEncKey := make([]byte, encryptedDataEncKeySize+authTagSize)
+	encryptedDataEncKey := make([]byte, config.EncryptedDataEncKeySize+config.AuthTagSize)
 	if _, err := encryptedFile.Read(encryptedDataEncKey); err != nil {
 		return message, fmt.Errorf("could not read the secure encryption key: %w", err)
 	}
@@ -63,7 +65,7 @@ func DecryptFile(inputPath string, outputPath string, password string) (string, 
 
 	decryptedDataEncKey, err := dataEncKeyCipher.Open(nil, nonce, encryptedDataEncKey, nil)
 	if err != nil {
-		return message, fmt.Errorf("could not decrypt the data encryption key, your password could be incorrect: %w", err)
+		return message, fmt.Errorf("%w - could not decrypt the data encryption key, either the password is incorrect or the encrypted file has been altered", err)
 	}
 
 	outputFile, err := os.OpenFile(outputPath, os.O_CREATE|os.O_EXCL|os.O_WRONLY, 0755)
@@ -77,7 +79,7 @@ func DecryptFile(inputPath string, outputPath string, password string) (string, 
 		return message, fmt.Errorf("could not create data decryption cipher: %w", err)
 	}
 
-	chunk := make([]byte, chunkSize+dataDecryptionCipher.Overhead())
+	chunk := make([]byte, config.ChunkSize+dataDecryptionCipher.Overhead())
 	chunkIndex := uint64(0)
 	totalBytesRead := 0
 

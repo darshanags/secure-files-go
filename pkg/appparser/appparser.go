@@ -1,12 +1,14 @@
-package cliparser
+package appparser
 
 import (
+	"bytes"
 	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
+	"github.com/darshanags/secure-files-go/pkg/config"
 	"golang.org/x/term"
 )
 
@@ -36,6 +38,41 @@ func GetOutputPath(dirc string, fp string) string {
 	}
 
 	return oF
+}
+
+func GetFileExtension(fp string) string {
+	return filepath.Ext(fp)
+}
+
+func GetFileSignature(f *os.File, fp string) ([]byte, error) {
+	var file *os.File
+	var sig []byte
+
+	if f == nil {
+		file, err := os.Open(fp)
+		if err != nil {
+			return sig, fmt.Errorf("could not open the input file: %w", err)
+		}
+		defer file.Close()
+	} else {
+		file = f
+	}
+
+	sig = make([]byte, config.FileSignatureLength)
+	if _, err := file.Read(sig); err != nil {
+		return sig, fmt.Errorf("could not read the file signature: %w", err)
+	}
+
+	return sig, nil
+
+}
+
+func IsValidFileSignature(sig []byte) (bool, error) {
+	if !bytes.Equal(sig, []byte(config.FileSignature)) {
+		return false, errors.New("file signature is invalid")
+	} else {
+		return true, nil
+	}
 }
 
 func CliParser(args []string) (ActionInfo, error) {
@@ -70,7 +107,7 @@ func CliParser(args []string) (ActionInfo, error) {
 		return action, err
 	}
 
-	if args[0] == "dec" && filepath.Ext(args[1]) != ".enc" {
+	if args[0] == "dec" && GetFileExtension(args[1]) != ".enc" {
 		return action, errors.New("the input file extension is invalid")
 	}
 

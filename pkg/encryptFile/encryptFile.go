@@ -7,16 +7,12 @@ import (
 	"os"
 	"slices"
 
+	"github.com/darshanags/secure-files-go/pkg/config"
 	genrandkey "github.com/darshanags/secure-files-go/pkg/genRandKey"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
 func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []byte) (string, error) {
-
-	const (
-		chunkSize = 4096
-		nonceSize = chacha20poly1305.NonceSize
-	)
 
 	inputFile, err := os.Open(inputPath)
 
@@ -34,7 +30,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 	defer outFile.Close()
 
 	dataEncKey := genrandkey.GenRandKey(chacha20poly1305.KeySize, "data encryption key")
-	nonce := genrandkey.GenRandKey(nonceSize, "nonce")
+	nonce := genrandkey.GenRandKey(config.NonceSize, "nonce")
 
 	dataEncKeyCipher, err := chacha20poly1305.New(derivedKey)
 	if err != nil {
@@ -43,7 +39,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 
 	encDataEncKey := dataEncKeyCipher.Seal(nil, nonce, dataEncKey, nil)
 
-	headerData := slices.Concat(nonce, salt, encDataEncKey)
+	headerData := slices.Concat([]byte(config.FileSignature), nonce, salt, encDataEncKey)
 
 	if _, err := outFile.Write(headerData); err != nil {
 		_ = fmt.Errorf("failed to write header data: %w", err)
@@ -54,7 +50,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 		_ = fmt.Errorf("failed to create cipher: %w", err)
 	}
 
-	chunk := make([]byte, chunkSize)
+	chunk := make([]byte, config.ChunkSize)
 	chunkIndex := uint64(0)
 	totalBytesRead := 0
 

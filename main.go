@@ -5,7 +5,7 @@ import (
 	"log"
 	"os"
 
-	cliparser "github.com/darshanags/secure-files-go/pkg/cliParser"
+	"github.com/darshanags/secure-files-go/pkg/appparser"
 	decryptfile "github.com/darshanags/secure-files-go/pkg/decryptFile"
 	encryptfile "github.com/darshanags/secure-files-go/pkg/encryptFile"
 	"github.com/darshanags/secure-files-go/pkg/kdf"
@@ -15,7 +15,7 @@ func main() {
 
 	progArgs := os.Args[1:]
 
-	actions, err := cliparser.CliParser(progArgs)
+	actions, err := appparser.CliParser(progArgs)
 
 	if err != nil {
 		log.Fatalln(err)
