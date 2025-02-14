@@ -47,11 +47,12 @@ func GetFileExtension(fp string) string {
 func GetFileSignature(f *os.File, fp string) ([]byte, error) {
 	var file *os.File
 	var sig []byte
+	var errr error
 
 	if f == nil {
-		file, err := os.Open(fp)
-		if err != nil {
-			return sig, fmt.Errorf("could not open the input file: %w", err)
+		file, errr = os.Open(fp)
+		if errr != nil {
+			return sig, fmt.Errorf("could not open the input file: %w", errr)
 		}
 		defer file.Close()
 	} else {
