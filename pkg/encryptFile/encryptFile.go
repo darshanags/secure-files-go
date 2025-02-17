@@ -6,17 +6,20 @@ import (
 	"io"
 	"os"
 	"slices"
+	"time"
 
 	"github.com/darshanags/secure-files-go/pkg/config"
 	genrandkey "github.com/darshanags/secure-files-go/pkg/genRandKey"
+	"github.com/darshanags/secure-files-go/pkg/utilities"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
 func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []byte) (string, error) {
 
-	inputFile, err := os.Open(inputPath)
-
 	message := ""
+	start := time.Now()
+
+	inputFile, err := os.Open(inputPath)
 
 	if err != nil {
 		return message, fmt.Errorf("failed to open input file: %w", err)
@@ -52,7 +55,7 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 
 	chunk := make([]byte, config.ChunkSize)
 	chunkIndex := uint64(0)
-	totalBytesRead := 0
+	var totalBytesRead uint = 0
 
 	for {
 		bytesRead, err := inputFile.Read(chunk)
@@ -71,10 +74,10 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 
 		chunkIndex++
 		binary.LittleEndian.PutUint64(nonce[4:], chunkIndex)
-		totalBytesRead += bytesRead
+		totalBytesRead += uint(bytesRead)
 	}
 
-	message = fmt.Sprintf("File encrypted successfully! Total bytes processed: %d", totalBytesRead)
+	message = fmt.Sprintf("File encrypted. %s processed in %s.", utilities.FormatFileSize(float64(totalBytesRead)), time.Since(start))
 
 	return message, nil
 }

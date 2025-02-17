@@ -5,16 +5,19 @@ import (
 	"fmt"
 	"io"
 	"os"
+	"time"
 
 	"github.com/darshanags/secure-files-go/pkg/appparser"
 	"github.com/darshanags/secure-files-go/pkg/config"
 	"github.com/darshanags/secure-files-go/pkg/kdf"
+	"github.com/darshanags/secure-files-go/pkg/utilities"
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
 func DecryptFile(inputPath string, outputPath string, password string) (string, error) {
 
 	message := ""
+	start := time.Now()
 
 	encryptedFile, err := os.Open(inputPath)
 	if err != nil {
@@ -81,7 +84,7 @@ func DecryptFile(inputPath string, outputPath string, password string) (string, 
 
 	chunk := make([]byte, config.ChunkSize+dataDecryptionCipher.Overhead())
 	chunkIndex := uint64(0)
-	totalBytesRead := 0
+	var totalBytesRead uint = 0
 
 	for {
 		bytesRead, err := encryptedFile.Read(chunk)
@@ -103,10 +106,10 @@ func DecryptFile(inputPath string, outputPath string, password string) (string, 
 
 		chunkIndex++
 		binary.LittleEndian.PutUint64(nonce[4:], chunkIndex)
-		totalBytesRead += bytesRead
+		totalBytesRead += uint(bytesRead)
 	}
 
-	message = fmt.Sprintf("File decrypted successfully! Total bytes processed: %d", totalBytesRead)
+	message = fmt.Sprintf("File decrypted. %s processed in %s.", utilities.FormatFileSize(float64(totalBytesRead)), time.Since(start))
 
 	return message, nil
 
