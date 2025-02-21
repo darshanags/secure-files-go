@@ -13,7 +13,7 @@ import (
 )
 
 type ActionInfo struct {
-	Directive, InputPath, OutputPath, Password string
+	Directive, InputFilename, InputPath, OutputFilename, OutputPath, Password string
 }
 
 func getPasswordFromUser() (pass string, errr error) {
@@ -121,7 +121,9 @@ func CliParser(args []string) (ActionInfo, error) {
 	}
 
 	action.Directive = directive
+	action.InputFilename = filepath.Base(args[1])
 	action.InputPath = fullInputPath
+	action.OutputFilename = filepath.Base(outputFile)
 	action.OutputPath = outputFile
 	action.Password = pw
 
