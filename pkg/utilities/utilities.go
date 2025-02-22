@@ -2,6 +2,16 @@ package utilities
 
 import "fmt"
 
+type FileInfo struct {
+	InputFilename, InputPath, OutputFilename, OutputPath string
+}
+
+type AsyncResult struct {
+	Filename string
+	Message  string
+	Error    error
+}
+
 func FormatFileSize(s float64) string {
 	const base float64 = 1024
 

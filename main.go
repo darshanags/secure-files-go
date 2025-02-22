@@ -10,6 +10,7 @@ import (
 	decryptfile "github.com/darshanags/secure-files-go/pkg/decryptFile"
 	encryptfile "github.com/darshanags/secure-files-go/pkg/encryptFile"
 	"github.com/darshanags/secure-files-go/pkg/kdf"
+	"github.com/darshanags/secure-files-go/pkg/utilities"
 )
 
 func main() {
@@ -24,11 +25,11 @@ func main() {
 	switch actions.Directive {
 	case "enc":
 
-		result := make(chan encryptfile.EncryptFileAsyncResult)
+		result := make(chan utilities.AsyncResult)
 		salt, key := kdf.Kdf(actions.Password, nil)
 		var wg sync.WaitGroup
 
-		file := &encryptfile.FileInfo{
+		file := &encryptfile.LocalFileInfo{
 			InputFilename:  actions.InputFilename,
 			InputPath:      actions.InputPath,
 			OutputFilename: actions.OutputFilename,
@@ -53,10 +54,10 @@ func main() {
 		close(result)
 
 	case "dec":
-		result := make(chan decryptfile.DecryptFileAsyncResult)
+		result := make(chan utilities.AsyncResult)
 		var wg sync.WaitGroup
 
-		file := &decryptfile.FileInfo{
+		file := &decryptfile.LocalFileInfo{
 			InputFilename:  actions.InputFilename,
 			InputPath:      actions.InputPath,
 			OutputFilename: actions.OutputFilename,

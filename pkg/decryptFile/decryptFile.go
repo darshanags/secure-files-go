@@ -15,15 +15,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-type FileInfo struct {
-	InputFilename, InputPath, OutputFilename, OutputPath string
-}
-
-type DecryptFileAsyncResult struct {
-	Filename string
-	Message  string
-	Error    error
-}
+type LocalFileInfo utilities.FileInfo
 
 func DecryptFile(inputPath string, outputPath string, password string) (string, error) {
 
@@ -126,11 +118,11 @@ func DecryptFile(inputPath string, outputPath string, password string) (string, 
 
 }
 
-func (file *FileInfo) DecryptFileAsync(password string, wg *sync.WaitGroup, resultChannel chan<- DecryptFileAsyncResult) {
+func (file *LocalFileInfo) DecryptFileAsync(password string, wg *sync.WaitGroup, resultChannel chan<- utilities.AsyncResult) {
 	defer wg.Done()
 	start := time.Now()
 
-	result := DecryptFileAsyncResult{
+	result := utilities.AsyncResult{
 		Filename: file.InputFilename,
 	}
 
@@ -254,7 +246,7 @@ func (file *FileInfo) DecryptFileAsync(password string, wg *sync.WaitGroup, resu
 		totalBytesRead += uint64(bytesRead)
 	}
 
-	resultChannel <- DecryptFileAsyncResult{
+	resultChannel <- utilities.AsyncResult{
 		Message: fmt.Sprintf("File decrypted: %s. %s processed in %s.", file.InputFilename, utilities.FormatFileSize(float64(totalBytesRead)), time.Since(start)),
 	}
 

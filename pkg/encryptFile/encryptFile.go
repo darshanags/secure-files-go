@@ -15,15 +15,7 @@ import (
 	"golang.org/x/crypto/chacha20poly1305"
 )
 
-type FileInfo struct {
-	InputFilename, InputPath, OutputFilename, OutputPath string
-}
-
-type EncryptFileAsyncResult struct {
-	Filename string
-	Message  string
-	Error    error
-}
+type LocalFileInfo utilities.FileInfo
 
 func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []byte) (string, error) {
 
@@ -93,11 +85,11 @@ func EncryptFile(inputPath string, outputPath string, derivedKey []byte, salt []
 	return message, nil
 }
 
-func (file *FileInfo) EncryptFileAsync(derivedKey []byte, salt []byte, wg *sync.WaitGroup, resultChannel chan<- EncryptFileAsyncResult) {
+func (file *LocalFileInfo) EncryptFileAsync(derivedKey []byte, salt []byte, wg *sync.WaitGroup, resultChannel chan<- utilities.AsyncResult) {
 	defer wg.Done()
 	start := time.Now()
 
-	result := EncryptFileAsyncResult{
+	result := utilities.AsyncResult{
 		Filename: file.InputFilename,
 	}
 
@@ -173,7 +165,7 @@ func (file *FileInfo) EncryptFileAsync(derivedKey []byte, salt []byte, wg *sync.
 		totalBytesRead += uint64(bytesRead)
 	}
 
-	resultChannel <- EncryptFileAsyncResult{
+	resultChannel <- utilities.AsyncResult{
 		Message: fmt.Sprintf("File encrypted: %s. %s processed in %s.", file.InputFilename, utilities.FormatFileSize(float64(totalBytesRead)), time.Since(start)),
 	}
 }
