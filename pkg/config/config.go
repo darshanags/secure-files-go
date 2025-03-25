@@ -3,6 +3,11 @@ package config
 import "golang.org/x/crypto/chacha20poly1305"
 
 const (
+	KdfTimeCost                    = 4          // Iterations
+	KdfMemoryCost                  = 128 * 1024 // Memory (128 MB)
+	KdfParallelism                 = 4          // Threads
+	KdfKeyLength                   = 32         // Key size in bytes
+	KdfSaltLength                  = 16         // Salt size in bytes
 	FileSignature           string = "CHAPOLYX"
 	FileSignatureLength            = len(FileSignature)
 	ChunkSize                      = 4096
