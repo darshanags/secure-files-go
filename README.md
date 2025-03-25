@@ -16,6 +16,9 @@ Encrypting a file will place the encrypted file in the same path as the _input_f
 **Decrypt a file:**
 
     secure-files-go dec <input_file>
+
+## Compiled Binaries
+Compiled binaries can be found in the [releases section](https://github.com/darshanags/secure-files-go/releases).
     
 ## Compiling Binaries
 There are several ways to build binaries as outlines below. You will need Go configured in your system to build binaries.
